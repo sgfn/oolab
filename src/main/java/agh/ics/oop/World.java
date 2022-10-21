@@ -3,44 +3,43 @@ package agh.ics.oop;
 import static java.lang.System.out;
 
 public class World {
-    private static MoveDirection[] argsToDirs(String[] args) {
-        MoveDirection[] dirs = new MoveDirection[args.length];
-        for (int i = 0; i < args.length; ++i) {
-            dirs[i] = switch(args[i]) {
-                case "f" -> MoveDirection.FORWARD;
-                case "b" -> MoveDirection.BACKWARD;
-                case "r" -> MoveDirection.RIGHT;
-                case "l" -> MoveDirection.LEFT;
-                default -> null;
-            };
-        }
-        return dirs;
+    private static void runAnimal(Animal animal, MoveDirection[] args) {
+        runAnimal(animal, args, 0);
     }
 
-    private static void run(MoveDirection[] args) {
+    private static void runAnimal(Animal animal, MoveDirection[] args, int verbosity) {
+        if (verbosity > 0) {
+            out.println(String.format("Start: %s", animal));
+        }
+
+        int step = 0;
         for (MoveDirection arg : args) {
-            if (arg == MoveDirection.FORWARD) {
-                out.println("Zwierzę zmierza w przód");
-            } else if (arg == MoveDirection.BACKWARD) {
-                out.println("Zwierzę zmierza w tył");
-            } else if (arg == MoveDirection.RIGHT) {
-                out.println("Zwierzę skręca w prawo");
-            } else if (arg == MoveDirection.LEFT) {
-                out.println("Zwierzę skręca w lewo");
+            animal.move(arg);
+            if (verbosity > 1) {
+                out.println(String.format("Krok %2d: %s", ++step, animal));
             }
+        }
+
+        if (verbosity > 0 && args.length > 0) {
+            out.println(String.format("Koniec: %s", animal));
         }
     }
 
     public static void main(String[] args) {
         out.println("System wystartował");
-        MoveDirection[] dirs = argsToDirs(args);
-        run(dirs);
+        MoveDirection[] mvDirs = OptionsParser.parse(args);
+        Animal animal = new Animal();
+        runAnimal(animal, mvDirs, 1); // set verbosity=2 to get animal telemetry for each step
         out.println("System zakończył działanie");
-
-        Vector2d position1 = new Vector2d(1, 2);
-        System.out.println(position1);
-        Vector2d position2 = new Vector2d(-2, 1);
-        System.out.println(position2);
-        System.out.println(position1.add(position2));
     }
 }
+
+/*
+10. Odpowiedz na pytanie: jak zaimplementować mechanizm, który wyklucza pojawienie się
+    dwóch zwierząt w tym samym miejscu.
+
+    Mój pomysł zakłada użycie kontenera typu set z aktualnymi pozycjami zwierząt,
+    przy każdym ruchu zwierząt byłby tenże set aktualizowany (zamortyzowane O(1)),
+    i jeżeli okazałoby się, że miejsce, do którego zmierza zwierzę, jest już zajęte,
+    tzn. w secie istnieje dana pozycja (O(1)), ruch nie zostałby wykonany.
+*/
