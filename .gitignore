@@ -6,3 +6,9 @@ build
 
 # Ignore compiled binaries
 bin
+
+# Ignore zipped archives
+*.zip
+
+# Ignore utils directory
+utils
