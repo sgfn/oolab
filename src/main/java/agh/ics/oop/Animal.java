@@ -1,13 +1,13 @@
 package agh.ics.oop;
 
-public class Animal {
+public class Animal extends AbstractWorldMapElement {
     private MapDirection facing = MapDirection.NORTH;
-    private Vector2d pos = new Vector2d(2, 2);
 
     private final IWorldMap map;
     
     public Animal(IWorldMap map) {
         this.map = map;
+        this.pos = new Vector2d(2, 2);
     }
 
     public Animal(IWorldMap map, Vector2d initialPosition) {
@@ -15,6 +15,7 @@ public class Animal {
         this.pos = initialPosition;
     }
 
+    @Override
     public String toString() {
         return switch (facing) {
             case NORTH -> "Λ";
@@ -22,14 +23,6 @@ public class Animal {
             case EAST -> ">";
             case WEST -> "<";
         };
-    }
-
-    public Vector2d getPos() {
-        return pos;
-    }
-
-    public boolean isAt(Vector2d position) {
-        return pos.equals(position);
     }
 
     public boolean isFacing(MapDirection direction) {

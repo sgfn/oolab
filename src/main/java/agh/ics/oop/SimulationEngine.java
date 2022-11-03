@@ -21,11 +21,11 @@ public class SimulationEngine implements IEngine {
         this.animals = v.toArray(new Animal[v.size()]);
     }
 
+    @Override
     public void run() {
         int animIndex = 0;
         for (MoveDirection mvDir : mvDirs) {
             animals[animIndex++].move(mvDir);
-            // Brakuje tu możliwości ustawiania poziomu verbosity w interfejsie...
             System.out.println(String.format("ANIMAL %d: %s\n%s", animIndex, mvDir, map));
             if (animIndex == animals.length) {
                 animIndex = 0;
