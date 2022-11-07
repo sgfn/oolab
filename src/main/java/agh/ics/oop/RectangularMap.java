@@ -20,4 +20,7 @@ public class RectangularMap extends AbstractWorldMap {
     protected Vector2d[] getBounds() {
         return new Vector2d[] { boundaryLowerLeft, boundaryUpperRight };
     }
+
+    @Override
+    protected void notifyRemovalOfIncorporealEntities(int amount) {};
 }
