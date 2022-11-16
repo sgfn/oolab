@@ -2,6 +2,7 @@ package agh.ics.oop;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
@@ -39,8 +40,15 @@ public class GrassFieldTest {
         assertTrue(map.place(new Animal(map, new Vector2d(2, 100000))));
         assertTrue(map.place(new Animal(map, new Vector2d(13, 1))));
 
-        assertFalse(map.place(new Animal(map, new Vector2d(2, 2))));
-        assertFalse(map.place(new Animal(map, new Vector2d(1, 1))));
+        Exception e = assertThrows(IllegalArgumentException.class, 
+            () -> map.place(new Animal(map, new Vector2d(2, 2))));
+        assertTrue(e.getMessage().equals(String.format("Unable to place animal at position %s",
+            new Vector2d(2, 2).toString())));
+
+        e = assertThrows(IllegalArgumentException.class, 
+            () -> map.place(new Animal(map, new Vector2d(1, 1))));
+        assertTrue(e.getMessage().equals(String.format("Unable to place animal at position %s",
+            new Vector2d(1, 1).toString())));
     }
 
     @Test

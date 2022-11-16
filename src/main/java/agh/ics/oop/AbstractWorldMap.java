@@ -5,6 +5,7 @@ import java.util.Map;
 
 public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObserver {
     protected final MapVisualizer mapVis = new MapVisualizer(this);
+    protected final MapBoundary mapBoundary = new MapBoundary();
 
     protected Map<Vector2d, IMapElement> entities = new HashMap<Vector2d, IMapElement>();
     protected Map<Vector2d, IMapElement> incorporealEntities = new HashMap<Vector2d, IMapElement>();
@@ -23,9 +24,11 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
         if (canMoveTo(animal.getPosition())) {
             entities.put(animal.getPosition(), animal);
             animal.addObserver(this);
+            mapBoundary.placeElem(animal);
+            animal.addObserver(mapBoundary);
             return true;
         }
-        return false;
+        throw new IllegalArgumentException(String.format("Unable to place animal at position %s", animal.getPosition()));
     }
 
     @Override
@@ -42,7 +45,7 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
         return incorporealEntities.get(position);
     }
 
-    protected abstract Vector2d[] getBounds();
+    public abstract Vector2d[] getBounds();
 
     @Override
     public String toString() {

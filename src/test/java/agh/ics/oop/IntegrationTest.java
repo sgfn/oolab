@@ -1,6 +1,6 @@
 package agh.ics.oop;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
@@ -20,8 +20,13 @@ public class IntegrationTest {
         final MoveDirection[] moves;
         final Vector2d finalPosition;
         final MapDirection finalOrientation;
+        final int invalidArgIndex;
+        final int invalidAnimalIndex;
+        SimpleSimulEngTestData(String[] a, MoveDirection[] m, Vector2d p, MapDirection o, int i, int j) {
+            args = a; moves = m; finalPosition = p; finalOrientation = o; invalidArgIndex = i; invalidAnimalIndex = j;
+        }
         SimpleSimulEngTestData(String[] a, MoveDirection[] m, Vector2d p, MapDirection o) {
-            args = a; moves = m; finalPosition = p; finalOrientation = o;
+            args = a; moves = m; finalPosition = p; finalOrientation = o; invalidArgIndex = -1; invalidAnimalIndex = -1;
         }
     }
 
@@ -31,8 +36,13 @@ public class IntegrationTest {
         final MoveDirection[] moves;
         final Vector2d[] initialPositions;
         final AnimalData[] animData;
+        final int invalidArgIndex;
+        final int invalidAnimalIndex;
+        SimulEngTestData(Vector2d dims, String[] a, MoveDirection[] m, Vector2d[] pos, AnimalData[] data, int i, int j) {
+            mapDimensions = dims; args = a; moves = m; initialPositions = pos; animData = data; invalidArgIndex = i; invalidAnimalIndex = j;
+        }
         SimulEngTestData(Vector2d dims, String[] a, MoveDirection[] m, Vector2d[] pos, AnimalData[] data) {
-            mapDimensions = dims; args = a; moves = m; initialPositions = pos; animData = data;
+            mapDimensions = dims; args = a; moves = m; initialPositions = pos; animData = data; invalidArgIndex = -1; invalidAnimalIndex = -1;
         }
         SimulEngTestData(SimpleSimulEngTestData td) {
             mapDimensions = new Vector2d(5, 5);
@@ -42,20 +52,37 @@ public class IntegrationTest {
             animData = new AnimalData[] {
                 new AnimalData(td.finalPosition, td.finalOrientation)
             };
+            invalidArgIndex = td.invalidArgIndex;
+            invalidAnimalIndex = td.invalidAnimalIndex;
         }
     }
 
     private static void runTestOnSimulEng(SimulEngTestData td) {
         IWorldMap map = new RectangularMap(td.mapDimensions.x, td.mapDimensions.y);
 
+        if (td.invalidArgIndex >= 0) {
+            Exception e = assertThrows(IllegalArgumentException.class, 
+                () -> OptionsParser.parse(td.args));
+            assertTrue(e.getMessage().equals(String.format("Invalid move: `%s'", td.args[td.invalidArgIndex])));
+            return;
+        }
         MoveDirection[] moves = OptionsParser.parse(td.args);
         assertTrue(Arrays.equals(moves, td.moves));
 
+        if (td.invalidAnimalIndex >= 0) {
+            Exception e = assertThrows(IllegalArgumentException.class, 
+                () -> new SimulationEngine(moves, map, td.initialPositions));
+            assertTrue(e.getMessage().equals(String.format("Unable to place animal at position %s", td.initialPositions[td.invalidAnimalIndex])));
+            return;
+        }
         IEngine engine = new SimulationEngine(moves, map, td.initialPositions);
         engine.run();
 
         for (AnimalData expectedAnimal : td.animData) {
-            assertFalse(map.place(new Animal(map, expectedAnimal.position)));
+            Exception e = assertThrows(IllegalArgumentException.class, 
+                () -> map.place(new Animal(map, expectedAnimal.position)));
+            assertTrue(e.getMessage().equals(String.format("Unable to place animal at position %s", expectedAnimal.position)));
+    
             assertTrue(map.isOccupied(expectedAnimal.position));
             Animal animal = (Animal) map.objectAt(expectedAnimal.position);
             assertTrue(animal.isAt(expectedAnimal.position));
@@ -143,7 +170,9 @@ public class IntegrationTest {
                     MoveDirection.RIGHT, MoveDirection.FORWARD, MoveDirection.LEFT
                 },
                 new Vector2d(3, 2),
-                MapDirection.NORTH
+                MapDirection.NORTH,
+                1,
+                -1
             )
         };
         runTestSuiteOnSimulEng(testData);
@@ -194,7 +223,9 @@ public class IntegrationTest {
                     new AnimalData(new Vector2d(2, 2), MapDirection.WEST),
                     new AnimalData(new Vector2d(2, 1), MapDirection.SOUTH),
                     new AnimalData(new Vector2d(1, 2), MapDirection.SOUTH)
-                }
+                },
+                -1,
+                1
             ),
             new SimulEngTestData(
                 new Vector2d(2, 2),

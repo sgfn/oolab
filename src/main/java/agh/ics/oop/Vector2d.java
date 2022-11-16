@@ -6,7 +6,7 @@ public class Vector2d {
     public final int x;
     public final int y;
 
-    Vector2d(int x, int y) {
+    public Vector2d(int x, int y) {
         this.x = x;
         this.y = y;
     }
@@ -58,5 +58,13 @@ public class Vector2d {
 
     public Vector2d opposite() {
         return new Vector2d(-x, -y);
+    }
+
+    public int compareAlongXaxis(Vector2d other) {
+        return this.x - other.x;
+    }
+
+    public int compareAlongYaxis(Vector2d other) {
+        return this.y - other.y;
     }
 }
