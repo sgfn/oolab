@@ -15,6 +15,7 @@ public class GrassField extends AbstractWorldMap {
             Grass g = new Grass(pos);
             incorporealEntities.put(pos, g);
             mapBoundary.placeElem(g);
+            notifyPositionChanged(pos, pos);
     }
 
     public GrassField(int n) {
@@ -31,9 +32,9 @@ public class GrassField extends AbstractWorldMap {
 
     // efektem ubocznym dzisiejszych labów jest to, że istoty cielesne zaczęły zjadać trawę
     @Override
-    protected void notifyRemovalOfIncorporealEntities(int amount) {
+    protected void handleRemovalOfIncorporealEntities(int amount) {
         for (int i=0; i<amount; ++i) {
             generateGrass();
         }
-    };
+    }
 }

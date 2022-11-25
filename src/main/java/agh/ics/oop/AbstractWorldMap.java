@@ -2,6 +2,7 @@ package agh.ics.oop;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Vector;
 
 public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObserver {
     protected final MapVisualizer mapVis = new MapVisualizer(this);
@@ -9,6 +10,8 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
 
     protected Map<Vector2d, IMapElement> entities = new HashMap<Vector2d, IMapElement>();
     protected Map<Vector2d, IMapElement> incorporealEntities = new HashMap<Vector2d, IMapElement>();
+
+    protected Vector<IPositionChangeObserver> observers = new Vector<IPositionChangeObserver>();
 
     @Override
     public boolean canMoveTo(Vector2d position) {
@@ -20,7 +23,7 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
     }
 
     @Override
-    public boolean place(Animal animal) {
+    public boolean place(Animal animal) throws IllegalArgumentException {
         if (canMoveTo(animal.getPosition())) {
             entities.put(animal.getPosition(), animal);
             animal.addObserver(this);
@@ -53,18 +56,35 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
         return mapVis.draw(bounds[0], bounds[1]);
     }
 
-    protected abstract void notifyRemovalOfIncorporealEntities(int amount);
+    protected abstract void handleRemovalOfIncorporealEntities(int amount);
 
     @Override
     public void positionChanged(Vector2d oldPosition, Vector2d newPosition) {
         IMapElement entity = entities.remove(oldPosition);
         if (entity != null) {
             entities.put(newPosition, entity);
-            Object o = incorporealEntities.get(newPosition);
+            Object o = incorporealEntities.remove(newPosition);
             if (o != null) {
-                incorporealEntities.remove(newPosition);
-                notifyRemovalOfIncorporealEntities(1);
+                handleRemovalOfIncorporealEntities(1);
             }
+        }
+    }
+
+    public void addObserver(IPositionChangeObserver observer) {
+        observers.add(observer);
+    }
+
+    public void removeObserver(IPositionChangeObserver observer) {
+        for (IPositionChangeObserver o : observers) {
+            if (o == observer) {
+                observers.remove(o);
+            }
+        }
+    }
+
+    protected void notifyPositionChanged(Vector2d oldPos, Vector2d newPos) {
+        for (IPositionChangeObserver o : observers) {
+            o.positionChanged(oldPos, newPos);
         }
     }
 }

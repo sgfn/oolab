@@ -44,12 +44,12 @@ public class Animal extends AbstractWorldMapElement {
             Vector2d move = facing.toUnitVector();
             if (direction == MoveDirection.FORWARD) {
                 if (map.canMoveTo(pos.add(move))) {
-                    positionChanged(pos, pos.add(move));
+                    notifyPositionChanged(pos, pos.add(move));
                     pos = pos.add(move);
                 }
             } else {
                 if (map.canMoveTo(pos.subtract(move))) {
-                    positionChanged(pos, pos.subtract(move));
+                    notifyPositionChanged(pos, pos.subtract(move));
                     pos = pos.subtract(move);
                 }
             }
@@ -69,9 +69,24 @@ public class Animal extends AbstractWorldMapElement {
         }
     }
 
-    private void positionChanged(Vector2d oldPos, Vector2d newPos) {
+    private void notifyPositionChanged(Vector2d oldPos, Vector2d newPos) {
         for (IPositionChangeObserver o : observers) {
             o.positionChanged(oldPos, newPos);
         }
+    }
+
+    @Override
+    public String getResource() {
+        return switch(facing) {
+            case NORTH -> "src/main/resources/up.png";
+            case SOUTH -> "src/main/resources/down.png";
+            case EAST -> "src/main/resources/right.png";
+            case WEST -> "src/main/resources/left.png";
+        };
+    }
+
+    @Override
+    public String getLabel() {
+        return String.format("Z %s", pos.toString());
     }
 }

@@ -22,5 +22,5 @@ public class RectangularMap extends AbstractWorldMap {
     }
 
     @Override
-    protected void notifyRemovalOfIncorporealEntities(int amount) {};
+    protected void handleRemovalOfIncorporealEntities(int amount) {};
 }

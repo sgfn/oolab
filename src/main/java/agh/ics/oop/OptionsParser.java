@@ -10,7 +10,7 @@ public class OptionsParser {
         "forward", "f", "backward", "b", "right", "r", "left", "l"
     ).collect(Collectors.toCollection(HashSet::new));
 
-    public static MoveDirection[] parse(String[] args) {
+    public static MoveDirection[] parse(String[] args) throws IllegalArgumentException {
         Vector<MoveDirection> v = new Vector<MoveDirection>();
         for (String arg : args) {
             if (!allowedArgs.contains(arg)) {
